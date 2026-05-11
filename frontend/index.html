@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1D9E75">
+<meta name="mobile-web-app-capable" content="yes">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>MedCare – Tumkur</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:#f0f9f5;min-height:100vh;display:flex;justify-content:center}
+#app{width:100%;max-width:430px;background:#f0f9f5;min-height:100vh;position:relative;overflow:hidden}
+
+/* Scrollable content area */
+.page{height:calc(100vh - 108px);overflow-y:auto;padding-bottom:20px}
+.page::-webkit-scrollbar{display:none}
+
+/* Header */
+.header{background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;padding:12px 18px 10px;display:flex;align-items:center;gap:12px}
+.header-logo{width:36px;height:36px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.header-title{font-size:17px;font-weight:800;letter-spacing:.3px}
+.header-sub{font-size:10px;opacity:.75;font-weight:600}
+
+/* Bottom Nav */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #d5ede5;display:flex;z-index:90}
+.nav-btn{flex:1;border:none;background:none;padding:8px 0 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:opacity .15s}
+.nav-icon{font-size:21px;line-height:1}
+.nav-label{font-size:9px;font-weight:700;color:#b0c8be;transition:color .15s}
+.nav-dot{width:18px;height:2.5px;background:#1D9E75;border-radius:2px;margin-top:1px;opacity:0;transition:opacity .15s}
+.nav-btn.active .nav-label{color:#1D9E75}
+.nav-btn.active .nav-dot{opacity:1}
+
+/* Cards */
+.card{background:#fff;border-radius:16px;border:1px solid #d5ede5;padding:16px;margin-bottom:14px;box-shadow:0 1px 4px rgba(29,158,117,.06)}
+.section-title{font-size:10px;font-weight:800;color:#94a89f;letter-spacing:1.2px;margin-bottom:12px}
+
+/* Teal helpers */
+.teal{color:#1D9E75}.teal-bg{background:#E1F5EE}.teal-dark{color:#0F6E56}
+.badge{background:#E1F5EE;color:#0F6E56;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;display:inline-block;margin:2px 2px 2px 0}
+.badge-red{background:#fff0f0;color:#c00}
+.badge-blue{background:#e8f0ff;color:#1a4db5}
+
+/* Toggle */
+.toggle{width:44px;height:24px;border-radius:12px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none}
+.toggle-thumb{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;transition:left .2s}
+
+/* Input */
+input,select,textarea{font-family:'Nunito',sans-serif;outline:none;border:1.5px solid #d5ede5;border-radius:10px;padding:9px 13px;font-size:13px;width:100%;color:#222;background:#fff;transition:border-color .15s}
+input:focus,select:focus{border-color:#1D9E75}
+button{cursor:pointer;font-family:'Nunito',sans-serif}
+
+/* Pill button */
+.pill{border:1.5px solid #d5ede5;background:#fff;border-radius:20px;padding:5px 13px;font-size:11px;font-weight:700;color:#666;transition:all .15s}
+.pill.active,.pill:hover{background:#E1F5EE;border-color:#1D9E75;color:#0F6E56}
+
+/* Primary button */
+.btn-primary{background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;width:100%;letter-spacing:.2px}
+.btn-primary:hover{opacity:.93}
+
+/* Doctor row */
+.doc-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #f0f7f4}
+.doc-row:last-child{border-bottom:none}
+.avatar{width:40px;height:40px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#0F6E56;flex-shrink:0}
+.doc-name{font-size:13px;font-weight:700;color:#222}
+.doc-sub{font-size:11px;color:#888;line-height:1.4}
+
+/* Stat cards */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:#fff;border-radius:14px;border:1px solid #d5ede5;padding:13px 14px;box-shadow:0 1px 4px rgba(29,158,117,.06)}
+.stat-label{font-size:10px;color:#94a89f;font-weight:700;margin-bottom:3px}
+.stat-val{font-size:22px;font-weight:900;color:#1D9E75;line-height:1}
+.stat-sub{font-size:10px;color:#b0c8be;margin-top:2px}
+
+/* Chat */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 108px)}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 14px 0}
+.chat-msgs::-webkit-scrollbar{display:none}
+.msg-row{display:flex;margin-bottom:10px}
+.msg-row.user{justify-content:flex-end}
+.msg-bubble{max-width:82%;padding:10px 14px;font-size:13px;line-height:1.6;white-space:pre-wrap}
+.msg-bubble.ai{background:#fff;border:1px solid #d5ede5;border-radius:16px 16px 16px 4px;color:#333}
+.msg-bubble.user{background:linear-gradient(135deg,#1D9E75,#0F6E56);color:#fff;border-radius:16px 16px 4px 16px}
+.msg-sender{font-size:9px;font-weight:800;color:#1D9E75;margin-bottom:3px}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;width:100%;max-width:430px;border-radius:22px 22px 0 0;padding:22px 20px 30px;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.close-btn{background:#f0f0f0;border:none;border-radius:50%;width:32px;height:32px;font-size:16px;color:#555}
+
+/* Reminder row */
+.rem-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f7f4}
+.rem-row:last-child{border-bottom:none}
+
+/* Booking card */
+.bk-card{background:#fff;border:1px solid #d5ede5;border-radius:16px;padding:16px;margin-bottom:12px}
+
+/* Progress bar */
+.progress-bar{height:6px;background:#e0f0ea;border-radius:3px;margin-top:6px}
+.progress-fill{height:6px;background:linear-gradient(90deg,#1D9E75,#0F6E56);border-radius:3px;transition:width .4s}
+
+/* Fade-in animation */
+.fade{animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Calorie list */
+.kcal-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:12px;color:#444}
+.kcal-row:last-child{border:none}
+.kcal-val{color:#1D9E75;font-weight:700;flex-shrink:0}
+
+/* Slot pill */
+.slot-pill{border:1.5px solid #d5ede5;background:#fff;border-radius:20px;padding:6px 13px;font-size:11px;font-weight:700;color:#555;margin:3px;cursor:pointer;transition:all .15s}
+.slot-pill.active{background:#1D9E75;border-color:#1D9E75;color:#fff}
+
+/* Empty state */
+.empty{text-align:center;padding:60px 20px;color:#c0d8cc}
+.empty-icon{font-size:52px;margin-bottom:14px}
+.empty-title{font-size:15px;font-weight:700;color:#c0d8cc;margin-bottom:4px}
+.empty-sub{font-size:12px}
+
+/* Quick chip */
+.quick-chip{background:#E1F5EE;color:#0F6E56;border:none;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;margin:3px;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-logo">🏥</div>
+    <div>
+      <div class="header-title">MedCare</div>
+      <div class="header-sub">Tumkur Health Assistant</div>
+    </div>
+  </div>
+
+  <div id="page-dashboard" class="page fade" style="padding:14px 14px 0"></div>
+  <div id="page-reminders" class="page fade" style="display:none;padding:14px 14px 0"></div>
+  <div id="page-hospitals" class="page fade" style="display:none;padding:14px 14px 0"></div>
+  <div id="page-ai" class="chat-wrap" style="display:none"></div>
+  <div id="page-bookings" class="page fade" style="display:none;padding:14px 14px 0"></div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchTab('dashboard')">
+      <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="switchTab('reminders')">
+      <span class="nav-icon">🔔</span><span class="nav-label">Reminders</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="switchTab('hospitals')">
+      <span class="nav-icon">🏥</span><span class="nav-label">Hospitals</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="switchTab('ai')">
+      <span class="nav-icon">🤖</span><span class="nav-label">AI Chat</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="switchTab('bookings')">
+      <span class="nav-icon">📅</span><span class="nav-label">Bookings</span><div class="nav-dot"></div>
+    </button>
+  </nav>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════
+const HOSPITALS = [
+  {id:1,name:"Ganga Hospital",address:"Vasav Nagar, Sira Road, Tumkur",phone:"0816-1234567",tags:["Orthopaedics","Spine","Neurology"],emergency:false,
+   doctors:[
+    {id:1,initials:"VT",name:"Dr. Vijay Tubaki",spec:"Spine & Orthopaedic Surgeon",exp:"10+ yrs",slots:"Mon–Sat: 10 AM – 5 PM"},
+    {id:2,initials:"RK",name:"Dr. Ramesh Kumar",spec:"Neurologist",exp:"8 yrs",slots:"Tue, Thu, Sat: 9 AM – 1 PM"},
+    {id:3,initials:"PS",name:"Dr. Pradeep Shetty",spec:"Orthopaedic Surgeon",exp:"12 yrs",slots:"Mon, Wed, Fri: 2 PM – 6 PM"},
+   ]},
+  {id:2,name:"Kasturba Hospital",address:"Heart of Tumkur City, Est. 1953",phone:"0816-2345678",tags:["OBG","Urology","ENT","ICU"],emergency:true,
+   doctors:[
+    {id:4,initials:"AR",name:"Dr. Anita Rao",spec:"Gynaecologist",exp:"15 yrs",slots:"Mon–Sat: 9 AM – 2 PM"},
+    {id:5,initials:"SN",name:"Dr. Suresh Nair",spec:"Urologist",exp:"12 yrs",slots:"Mon, Wed, Fri: 3 PM – 7 PM"},
+    {id:6,initials:"KM",name:"Dr. Kavitha Murthy",spec:"ENT Specialist",exp:"9 yrs",slots:"Tue, Thu, Sat: 10 AM – 3 PM"},
+    {id:7,initials:"BV",name:"Dr. Bhaskar Vittal",spec:"Intensivist (ICU)",exp:"14 yrs",slots:"Mon–Sat: 8 AM – 12 PM"},
+   ]},
+  {id:3,name:"Bharathi Hospital",address:"Ashok Nagar, Tumkur · 39 beds",phone:"0816-3456789",tags:["General Surgery","Paediatrics"],emergency:false,
+   doctors:[
+    {id:8,initials:"PK",name:"Dr. Priya Krishnamurthy",spec:"Child Specialist",exp:"7 yrs",slots:"Tue, Thu: 10 AM – 2 PM"},
+    {id:9,initials:"NG",name:"Dr. Naveen Gowda",spec:"General Surgeon",exp:"11 yrs",slots:"Mon–Sat: 9 AM – 1 PM"},
+   ]},
+  {id:4,name:"District Govt Hospital",address:"Main St 19, Tumkur – 572101",phone:"0816-4567890",tags:["Emergency","TB","Dental"],emergency:true,
+   doctors:[
+    {id:10,initials:"MN",name:"Dr. Manjunath N",spec:"General Physician",exp:"20 yrs",slots:"Mon–Sat: 9 AM – 2 PM"},
+    {id:11,initials:"PK2",name:"Dr. Priya Krishnamurthy",spec:"Child Specialist",exp:"7 yrs",slots:"Tue, Thu: 10 AM – 2 PM"},
+    {id:12,initials:"RD",name:"Dr. Ravi Desai",spec:"Dentist",exp:"10 yrs",slots:"Mon–Fri: 10 AM – 4 PM"},
+    {id:13,initials:"ST",name:"Dr. Sneha Tiwari",spec:"TB & Chest Physician",exp:"13 yrs",slots:"Mon, Wed, Fri: 9 AM – 12 PM"},
+   ]},
+  {id:5,name:"Shanthi Nursing Home",address:"Shanti Nagar, 652 sqm, Tumkur",phone:"0816-5678901",tags:["Cardiology","Anal Care","Paediatrics"],emergency:false,
+   doctors:[
+    {id:14,initials:"RK2",name:"Dr. Ramakrishna",spec:"Cardiologist",exp:"18 yrs",slots:"Mon, Wed, Fri: 10 AM – 4 PM"},
+    {id:15,initials:"LN",name:"Dr. Lakshmi Narayana",spec:"Proctologist",exp:"16 yrs",slots:"Tue, Thu, Sat: 9 AM – 1 PM"},
+    {id:16,initials:"SM",name:"Dr. Suma Murthy",spec:"Paediatrician",exp:"8 yrs",slots:"Mon–Sat: 8 AM – 11 AM"},
+   ]},
+];
+
+// Calorie database (no API key needed!)
+const FOODS = {
+  // Indian foods
+  "chapati":120,"roti":120,"dosa":150,"idli":60,"rice":130,"dal":180,"sambar":80,
+  "upma":200,"poha":250,"puri":110,"paratha":200,"biryani":350,"palak paneer":300,
+  "paneer butter masala":380,"rajma":230,"chole":250,"aloo sabzi":180,"egg":80,
+  "omelette":200,"boiled egg":80,"bread":80,"butter":100,"milk":150,"curd":100,
+  "lassi":200,"coffee":50,"tea":40,"juice":120,"banana":105,"apple":80,"orange":70,
+  "mango":100,"grapes":60,"watermelon":50,"papaya":60,"guava":45,
+  // Snacks
+  "samosa":150,"pakora":180,"vada":150,"bonda":120,"chips":150,"biscuit":50,
+  "chocolate":150,"cake":350,"sandwich":300,"burger":500,"pizza":300,
+  "maggi":350,"noodles":300,"soup":100,"salad":80,
+  // Drinks
+  "milkshake":400,"lassi":200,"soda":100,"water":0,"buttermilk":60,"coconut water":50,
+  // Proteins
+  "chicken":220,"fish":150,"mutton":280,"egg curry":250,"paneer":270,"tofu":180,
+  // Sweets
+  "gulab jamun":150,"jalebi":200,"ladoo":200,"halwa":300,"kheer":250,"rasgulla":130,
+  // Breakfast
+  "cornflakes":150,"oats":300,"muesli":350,"cereal":200,"toast":150,
+  // General
+  "vegetables":50,"dal rice":310,"curd rice":280,"lemon rice":220,"tomato rice":200,
+  "veg sandwich":250,"egg sandwich":320,"veg biryani":320,"chicken biryani":400,
+  "chocolate milkshake":450,"veg":50,"meal":400,"thali":700,"lunch":500,"dinner":500,
+};
+
+function estimateCalories(text) {
+  text = text.toLowerCase();
+  let total = 0, found = false;
+  // Check for numbers like "2 chapati"
+  const numMatch = text.match(/(\d+(?:\.\d+)?)\s*(chapati|roti|idli|egg|biscuit|puri|paratha|samosa|vada|ladoo|gulab jamun|rasgulla)/gi);
+  if (numMatch) {
+    numMatch.forEach(m => {
+      const parts = m.match(/(\d+(?:\.\d+)?)\s+(\w+)/i);
+      if (parts) {
+        const qty = parseFloat(parts[1]);
+        const food = parts[2].toLowerCase();
+        if (FOODS[food]) { total += Math.round(qty * FOODS[food]); found = true; }
+      }
+    });
+  }
+  // Check each word/phrase
+  const words = text.split(/[\s,+&]+/);
+  for (let i = 0; i < words.length; i++) {
+    // Try 3-word phrase, 2-word phrase, 1-word
+    for (let len = 3; len >= 1; len--) {
+      const phrase = words.slice(i, i + len).join(' ');
+      if (FOODS[phrase] !== undefined) {
+        total += FOODS[phrase]; found = true; break;
+      }
+    }
+  }
+  if (!found) {
+    // Guess based on meal type
+    if (text.includes('breakfast')) return {label:text,kcal:350};
+    if (text.includes('lunch') || text.includes('meal')) return {label:text,kcal:500};
+    if (text.includes('dinner')) return {label:text,kcal:450};
+    if (text.includes('snack')) return {label:text,kcal:200};
+    return {label:text,kcal:250};
+  }
+  return {label:text, kcal:Math.max(total,50)};
+}
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let state = {
+  tab: 'dashboard',
+  calories: [
+    {label:'Chocolate milkshake 2 veg sandwich',kcal:850}
+  ],
+  steps: 0,
+  water: 2.1,
+  reminders: {
+    water:[
+      {id:1,label:'Morning water',time:'7:05 AM',enabled:true},
+      {id:2,label:'Mid-morning water',time:'9:00 AM',enabled:true},
+      {id:3,label:'Afternoon water',time:'3:00 PM',enabled:true},
+    ],
+    medication:[
+      {id:4,label:'Metformin 500mg',time:'8:30 AM',sub:'After meals',enabled:true},
+      {id:5,label:'Vitamin D3',time:'1:00 PM',sub:'With lunch',enabled:true},
+      {id:6,label:'BP tablet',time:'10:00 PM',enabled:false},
+    ]
+  },
+  expanded: null,
+  bookings: [],
+  chatMsgs: [
+    {role:'ai',text:"Hello! I'm TumkurCare AI 🏥\n\nTell me your symptoms and I'll recommend the right doctor and hospital in Tumkur for you."}
+  ],
+  chatLoading: false,
+  modalBooking: null, // {hospital, doctor}
+};
+
+// ════════════════════════════════════════════════════════════════
+// RENDER HELPERS
+// ════════════════════════════════════════════════════════════════
+function totalKcal(){ return state.calories.reduce((s,c)=>s+c.kcal,0); }
+
+function renderToggle(id,checked,section){
+  const bg = checked ? '#1D9E75':'#ccc';
+  const left = checked ? '22px':'2px';
+  return `<button class="toggle" style="background:${bg}" onclick="toggleReminder('${section}',${id})"><div class="toggle-thumb" style="left:${left}"></div></button>`;
+}
+
+function renderBadge(tag,cls=''){
+  return `<span class="badge ${cls}">${tag}</span>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════════
+function renderDashboard(){
+  const kcal = totalKcal();
+  const stepPct = Math.min(100, Math.round(state.steps/100));
+  const bkCount = state.bookings.filter(b=>b.status==='booked').length;
+  document.getElementById('page-dashboard').innerHTML=`
+  <div style="background:linear-gradient(135deg,#1D9E75,#0a5c41);border-radius:18px;padding:20px 18px;margin-bottom:16px;color:#fff;position:relative;overflow:hidden">
+    <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;background:rgba(255,255,255,.07);border-radius:50%"></div>
+    <div style="font-size:12px;opacity:.8;margin-bottom:2px;font-weight:600">Good morning! 👋</div>
+    <div style="font-size:18px;font-weight:800">Tumkur · Your health summary today</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">STEPS TODAY</div><div class="stat-val">${state.steps.toLocaleString()}</div><div class="stat-sub">Goal: 10,000</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${stepPct}%"></div></div>
+    </div>
+    <div class="stat-card"><div class="stat-label">CALORIES TODAY</div><div class="stat-val">${kcal}</div><div class="stat-sub">kcal consumed</div></div>
+    <div class="stat-card"><div class="stat-label">WATER INTAKE</div><div class="stat-val">${state.water}L</div><div class="stat-sub">~${Math.round(state.water/0.25)} glasses</div></div>
+    <div class="stat-card"><div class="stat-label">APPOINTMENTS</div><div class="stat-val">${bkCount}</div><div class="stat-sub">confirmed today</div></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">🔥 CALORIE TRACKER</div>
+    <div style="font-size:13px;color:#555;margin-bottom:8px">Total today: <b style="color:#1D9E75">${kcal} kcal</b></div>
+    <div id="kcal-list">
+      ${state.calories.map(c=>`<div class="kcal-row"><span style="flex:1;margin-right:8px">${c.label}</span><span class="kcal-val">${c.kcal} kcal</span></div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input id="food-input" placeholder="e.g. 2 chapati and dal" style="flex:1" onkeydown="if(event.key==='Enter')analyzeFood()"/>
+      <button onclick="analyzeFood()" style="background:#1D9E75;color:#fff;border:none;border-radius:10px;padding:9px 16px;font-weight:800;font-size:13px;flex-shrink:0" id="analyze-btn">Analyze</button>
+    </div>
+    <div id="food-err" style="font-size:11px;color:#e05;margin-top:5px;display:none">Please type a food item first.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">⏰ TODAY'S REMINDERS</div>
+    ${[...state.reminders.water,...state.reminders.medication].filter(r=>r.enabled).slice(0,4).map(r=>`
+    <div class="rem-row">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:18px">${r.id<=3?'💧':'💊'}</span>
+        <div><div style="font-size:13px;font-weight:700;color:#222">${r.label}</div><div style="font-size:11px;color:#999">${r.time}${r.sub?` · ${r.sub}`:''}</div></div>
+      </div>
+    </div>`).join('')}
+  </div>
+
+  <div style="background:#e5f9f1;border-radius:14px;padding:13px 15px;display:flex;gap:10px;align-items:flex-start;margin-bottom:6px">
+    <span style="font-size:20px">💡</span>
+    <div style="font-size:12px;color:#0F6E56;line-height:1.6"><b>Tip of the day:</b> Walking 10,000 steps daily reduces heart disease risk by up to 30%.</div>
+  </div>`;
+}
+
+function analyzeFood(){
+  const input = document.getElementById('food-input');
+  const btn = document.getElementById('analyze-btn');
+  const err = document.getElementById('food-err');
+  const val = input.value.trim();
+  if(!val){err.style.display='block';return;}
+  err.style.display='none';
+  btn.textContent='Adding...';
+  btn.disabled=true;
+  setTimeout(()=>{
+    const result = estimateCalories(val);
+    state.calories.push(result);
+    input.value='';
+    btn.textContent='Analyze';
+    btn.disabled=false;
+    renderDashboard();
+  },400);
+}
+
+// ════════════════════════════════════════════════════════════════
+// REMINDERS
+// ════════════════════════════════════════════════════════════════
+function renderReminders(){
+  document.getElementById('page-reminders').innerHTML=`
+  <h2 style="font-size:20px;font-weight:800;color:#222;margin-bottom:16px">Reminders</h2>
+  <div class="card">
+    <div class="section-title">💧 WATER REMINDERS</div>
+    ${state.reminders.water.map(r=>`
+    <div class="rem-row">
+      <div><div style="font-size:14px;font-weight:700;color:#222">${r.label}</div><div style="font-size:11px;color:#999">${r.time}</div></div>
+      ${renderToggle(r.id,r.enabled,'water')}
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="section-title">💊 MEDICATION REMINDERS</div>
+    ${state.reminders.medication.map(r=>`
+    <div class="rem-row">
+      <div><div style="font-size:14px;font-weight:700;color:#222">${r.label}</div><div style="font-size:11px;color:#999">${r.time}${r.sub?` · ${r.sub}`:''}</div></div>
+      ${renderToggle(r.id,r.enabled,'medication')}
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <div class="section-title">ADD NEW REMINDER</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="pill active" id="add-water-btn" onclick="setAddType('water')" style="flex:1">💧 Water</button>
+      <button class="pill" id="add-med-btn" onclick="setAddType('medication')" style="flex:1">💊 Medication</button>
+    </div>
+    <input id="rem-label" placeholder="Name (e.g. Paracetamol 500mg)" style="margin-bottom:8px"/>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input id="rem-hour" type="number" min="0" max="23" placeholder="Hour (0–23)" style="flex:1"/>
+      <input id="rem-min" type="number" min="0" max="59" placeholder="Min (0–59)" style="flex:1"/>
+    </div>
+    <button class="btn-primary" onclick="addReminder()">+ Add reminder</button>
+  </div>`;
+  window._addType='water';
+}
+
+function setAddType(t){
+  window._addType=t;
+  document.getElementById('add-water-btn').className='pill'+(t==='water'?' active':'');
+  document.getElementById('add-med-btn').className='pill'+(t==='medication'?' active':'');
+}
+
+function toggleReminder(section,id){
+  const list=state.reminders[section];
+  const r=list.find(x=>x.id===id);
+  if(r)r.enabled=!r.enabled;
+  renderReminders();
+}
+
+function addReminder(){
+  const label=document.getElementById('rem-label').value.trim();
+  if(!label){alert('Please enter a name');return;}
+  const h=parseInt(document.getElementById('rem-hour').value)||8;
+  const m=parseInt(document.getElementById('rem-min').value)||0;
+  const ampm=h>=12?'PM':'AM';
+  const h12=h%12||12;
+  const time=`${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+  const t=window._addType||'water';
+  const newId=Date.now();
+  state.reminders[t].push({id:newId,label,time,enabled:true});
+  renderReminders();
+}
+
+// ════════════════════════════════════════════════════════════════
+// HOSPITALS
+// ════════════════════════════════════════════════════════════════
+function renderHospitals(){
+  document.getElementById('page-hospitals').innerHTML=`
+  <h2 style="font-size:20px;font-weight:800;color:#222;margin-bottom:4px">Hospitals</h2>
+  <div style="font-size:13px;color:#94a89f;margin-bottom:14px">5 hospitals in Tumkur</div>
+  ${HOSPITALS.map(h=>`
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:16px">
+      <div style="font-size:15px;font-weight:800;color:#222;margin-bottom:3px">${h.name}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:2px">📍 ${h.address}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:8px">📞 ${h.phone}</div>
+      <div>
+        ${h.emergency?renderBadge('🚨 Emergency'):''}
+        ${h.tags.map(t=>renderBadge(t)).join('')}
+      </div>
+      <button onclick="toggleExpand(${h.id})" style="margin-top:10px;background:none;border:none;color:#1D9E75;font-weight:700;font-size:12px;padding:0;font-family:'Nunito',sans-serif">
+        ${state.expanded===h.id?'▲ Collapse':'▼ View doctors'}
+      </button>
+    </div>
+    ${state.expanded===h.id?`
+    <div style="border-top:1px solid #e5f5ee;background:#f9fefc">
+      <div style="padding:8px 16px 2px" class="section-title">AVAILABLE DOCTORS</div>
+      ${h.doctors.map(d=>`
+      <div class="doc-row" style="padding:10px 16px">
+        <div class="avatar">${d.initials}</div>
+        <div style="flex:1">
+          <div class="doc-name">${d.name}</div>
+          <div class="doc-sub">${d.spec} · ${d.exp}</div>
+          <div class="doc-sub">${d.slots}</div>
+        </div>
+        <button onclick="openBooking(${h.id},${d.id})" style="background:#1D9E75;color:#fff;border:none;border-radius:9px;padding:8px 15px;font-weight:800;font-size:12px;font-family:'Nunito',sans-serif">Book</button>
+      </div>`).join('')}
+    </div>`:''}
+  </div>`).join('')}`;
+}
+
+function toggleExpand(id){
+  state.expanded = state.expanded===id ? null : id;
+  renderHospitals();
+}
+
+function openBooking(hid,did){
+  const h=HOSPITALS.find(x=>x.id===hid);
+  const d=h.doctors.find(x=>x.id===did);
+  state.modalBooking={h,d};
+  renderBookingModal();
+}
+
+// ════════════════════════════════════════════════════════════════
+// BOOKING MODAL
+// ════════════════════════════════════════════════════════════════
+function renderBookingModal(){
+  const {h,d}=state.modalBooking;
+  const today=new Date().toISOString().split('T')[0];
+  const slots=['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
+  window._bookSlot = slots[1];
+  let old=document.getElementById('modal-container');
+  if(old)old.remove();
+  const el=document.createElement('div');
+  el.id='modal-container';
+  el.className='modal-backdrop';
+  el.innerHTML=`
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:16px;font-weight:800;color:#222">Book Appointment</div>
+        <div style="font-size:12px;color:#888">${d.name} · ${h.name}</div>
+      </div>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <input id="bk-name" placeholder="Your full name" style="margin-bottom:10px"/>
+    <input type="date" id="bk-date" value="${today}" min="${today}" style="margin-bottom:12px"/>
+    <div class="section-title" style="margin-bottom:8px">SELECT TIME SLOT</div>
+    <div style="display:flex;flex-wrap:wrap;margin-bottom:18px">
+      ${slots.map(s=>`<button class="slot-pill ${s===window._bookSlot?'active':''}" onclick="selectSlot(this,'${s}')">${s}</button>`).join('')}
+    </div>
+    <button class="btn-primary" onclick="confirmBooking()">Confirm Appointment ✓</button>
+  </div>`;
+  document.body.appendChild(el);
+}
+
+function selectSlot(btn,slot){
+  window._bookSlot=slot;
+  document.querySelectorAll('.slot-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function closeModal(){
+  const el=document.getElementById('modal-container');
+  if(el)el.remove();
+  state.modalBooking=null;
+}
+
+function confirmBooking(){
+  const name=document.getElementById('bk-name').value.trim();
+  const date=document.getElementById('bk-date').value;
+  if(!name){document.getElementById('bk-name').style.borderColor='#e05';document.getElementById('bk-name').focus();return;}
+  const {h,d}=state.modalBooking;
+  state.bookings.unshift({hospital:h,doctor:d,slot:window._bookSlot,date,name,status:'booked',id:Date.now()});
+  closeModal();
+  switchTab('bookings');
+}
+
+// ════════════════════════════════════════════════════════════════
+// AI CHAT (uses Groq API from your backend OR smart local fallback)
+// ════════════════════════════════════════════════════════════════
+const SYMPTOM_MAP = {
+  'back pain':   {spec:'Spine & Orthopaedic Surgeon',hospital:'Ganga Hospital',doctor:'Dr. Vijay Tubaki'},
+  'spine':       {spec:'Spine & Orthopaedic Surgeon',hospital:'Ganga Hospital',doctor:'Dr. Vijay Tubaki'},
+  'knee':        {spec:'Orthopaedic Surgeon',hospital:'Ganga Hospital',doctor:'Dr. Pradeep Shetty'},
+  'joint':       {spec:'Orthopaedic Surgeon',hospital:'Ganga Hospital',doctor:'Dr. Pradeep Shetty'},
+  'fracture':    {spec:'Orthopaedic Surgeon',hospital:'Ganga Hospital',doctor:'Dr. Pradeep Shetty'},
+  'headache':    {spec:'Neurologist',hospital:'Ganga Hospital',doctor:'Dr. Ramesh Kumar'},
+  'migraine':    {spec:'Neurologist',hospital:'Ganga Hospital',doctor:'Dr. Ramesh Kumar'},
+  'seizure':     {spec:'Neurologist',hospital:'Ganga Hospital',doctor:'Dr. Ramesh Kumar'},
+  'pregnancy':   {spec:'Gynaecologist',hospital:'Kasturba Hospital',doctor:'Dr. Anita Rao'},
+  'gynaec':      {spec:'Gynaecologist',hospital:'Kasturba Hospital',doctor:'Dr. Anita Rao'},
+  'periods':     {spec:'Gynaecologist',hospital:'Kasturba Hospital',doctor:'Dr. Anita Rao'},
+  'urine':       {spec:'Urologist',hospital:'Kasturba Hospital',doctor:'Dr. Suresh Nair'},
+  'kidney':      {spec:'Urologist',hospital:'Kasturba Hospital',doctor:'Dr. Suresh Nair'},
+  'ear':         {spec:'ENT Specialist',hospital:'Kasturba Hospital',doctor:'Dr. Kavitha Murthy'},
+  'nose':        {spec:'ENT Specialist',hospital:'Kasturba Hospital',doctor:'Dr. Kavitha Murthy'},
+  'throat':      {spec:'ENT Specialist',hospital:'Kasturba Hospital',doctor:'Dr. Kavitha Murthy'},
+  'tonsil':      {spec:'ENT Specialist',hospital:'Kasturba Hospital',doctor:'Dr. Kavitha Murthy'},
+  'child':       {spec:'Paediatrician',hospital:'Shanthi Nursing Home',doctor:'Dr. Suma Murthy'},
+  'baby':        {spec:'Paediatrician',hospital:'Shanthi Nursing Home',doctor:'Dr. Suma Murthy'},
+  'fever':       {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'cough':       {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'cold':        {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'flu':         {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'diabetes':    {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'bp':          {spec:'Cardiologist',hospital:'Shanthi Nursing Home',doctor:'Dr. Ramakrishna'},
+  'blood pressure':{spec:'Cardiologist',hospital:'Shanthi Nursing Home',doctor:'Dr. Ramakrishna'},
+  'chest':       {spec:'Cardiologist',hospital:'Shanthi Nursing Home',doctor:'Dr. Ramakrishna'},
+  'heart':       {spec:'Cardiologist',hospital:'Shanthi Nursing Home',doctor:'Dr. Ramakrishna'},
+  'palpitation': {spec:'Cardiologist',hospital:'Shanthi Nursing Home',doctor:'Dr. Ramakrishna'},
+  'dental':      {spec:'Dentist',hospital:'District Govt Hospital',doctor:'Dr. Ravi Desai'},
+  'tooth':       {spec:'Dentist',hospital:'District Govt Hospital',doctor:'Dr. Ravi Desai'},
+  'tb':          {spec:'TB & Chest Physician',hospital:'District Govt Hospital',doctor:'Dr. Sneha Tiwari'},
+  'tuberculosis':{spec:'TB & Chest Physician',hospital:'District Govt Hospital',doctor:'Dr. Sneha Tiwari'},
+  'stomach':     {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'acidity':     {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'vomiting':    {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'diarrhea':    {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'skin':        {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'rash':        {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+  'eye':         {spec:'General Physician',hospital:'District Govt Hospital',doctor:'Dr. Manjunath N'},
+};
+
+function getLocalAIReply(text){
+  const lower = text.toLowerCase();
+  let match=null;
+  for(const [kw,val] of Object.entries(SYMPTOM_MAP)){
+    if(lower.includes(kw)){match=val;break;}
+  }
+  if(!match) return `I understand you're experiencing "${text}". For an accurate diagnosis, please consult a doctor at one of our Tumkur hospitals.\n\n🏥 <b>Recommended:</b> District Govt Hospital\n👨‍⚕️ <b>Doctor:</b> Dr. Manjunath N (General Physician)\n🕐 Mon–Sat: 9 AM – 2 PM\n\nGo to the <b>Hospitals</b> tab to book your appointment.`;
+  return `For <b>${text}</b>, I recommend:\n\n🏥 <b>Hospital:</b> ${match.hospital}\n👨‍⚕️ <b>Doctor:</b> ${match.doctor}\n🩺 <b>Specialty:</b> ${match.spec}\n\nPlease go to the <b>Hospitals</b> tab to view availability and book your appointment. Take care! 💚`;
+}
+
+function renderAIChat(){
+  const aiDiv=document.getElementById('page-ai');
+  aiDiv.innerHTML=`
+  <div style="padding:12px 16px 8px;border-bottom:1px solid #e5f5ee;background:#fff">
+    <div style="font-size:18px;font-weight:800;color:#222">AI Chat</div>
+    <div style="font-size:11px;color:#94a89f">Powered by TumkurCare Intelligence</div>
+  </div>
+  <div class="chat-msgs" id="chat-msgs">
+    ${state.chatMsgs.map(m=>renderMsg(m)).join('')}
+    ${state.chatLoading?`<div class="msg-row"><div class="msg-bubble ai" style="padding:12px 16px"><span class="typing-dot" style="animation-delay:0s"></span>&nbsp;<span class="typing-dot" style="animation-delay:.2s"></span>&nbsp;<span class="typing-dot" style="animation-delay:.4s"></span></div></div>`:''}
+  </div>
+  <div style="padding:8px 14px 12px;border-top:1px solid #e5f5ee;background:#fff">
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+      ${['Fever & cough','Back pain','Chest pain','Knee pain','Headache','Stomach pain'].map(s=>`<button class="quick-chip" onclick="chatSend('${s}')">${s}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px">
+      <input id="chat-input" placeholder="Describe your symptoms..." style="flex:1;border-radius:24px;padding:10px 16px" onkeydown="if(event.key==='Enter')chatSend()"/>
+      <button onclick="chatSend()" style="width:42px;height:42px;background:#1D9E75;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>`;
+  scrollChat();
+}
+
+function renderMsg(m){
+  if(m.role==='ai') return `<div class="msg-row"><div><div class="msg-sender">TumkurCare AI</div><div class="msg-bubble ai">${m.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div></div></div>`;
+  return `<div class="msg-row user"><div class="msg-bubble user">${m.text}</div></div>`;
+}
+
+function scrollChat(){
+  const el=document.getElementById('chat-msgs');
+  if(el) setTimeout(()=>el.scrollTop=el.scrollHeight,50);
+}
+
+function chatSend(preset){
+  const input=document.getElementById('chat-input');
+  const msg=preset||(input?input.value.trim():'');
+  if(!msg)return;
+  if(input)input.value='';
+  state.chatMsgs.push({role:'user',text:msg});
+  state.chatLoading=true;
+  renderAIChat();
+  scrollChat();
+  // Use local smart engine — no API key needed
+  setTimeout(()=>{
+    const reply = getLocalAIReply(msg);
+    state.chatMsgs.push({role:'ai',text:reply});
+    state.chatLoading=false;
+    renderAIChat();
+    scrollChat();
+  }, 800);
+}
+
+// ════════════════════════════════════════════════════════════════
+// BOOKINGS
+// ════════════════════════════════════════════════════════════════
+function renderBookings(){
+  const bk=state.bookings;
+  document.getElementById('page-bookings').innerHTML=`
+  <h2 style="font-size:20px;font-weight:800;color:#222;margin-bottom:4px">Bookings</h2>
+  <div style="font-size:13px;color:#94a89f;margin-bottom:16px">Your appointments</div>
+  ${bk.length===0?`<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">No appointments yet</div><div class="empty-sub">Go to Hospitals tab to book one</div></div>`:
+  bk.map((b,i)=>`
+  <div class="bk-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:14px;color:#222;margin-bottom:2px">${b.doctor.name}</div>
+        <div style="font-size:12px;color:#777;margin-bottom:2px">${b.doctor.spec}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:3px">🏥 ${b.hospital.name}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px">🕐 ${b.slot} · ${b.date}</div>
+        <div style="font-size:11px;color:#888;margin-bottom:6px">👤 ${b.name}</div>
+        <span style="background:${b.status==='booked'?'#E1F5EE':'#fff0f0'};color:${b.status==='booked'?'#0F6E56':'#c00'};font-size:11px;font-weight:800;padding:3px 10px;border-radius:10px">
+          ${b.status==='booked'?'✓ Confirmed':'Cancelled'}
+        </span>
+      </div>
+      ${b.status==='booked'?`<button onclick="cancelBooking(${i})" style="background:#fff0f0;color:#c00;border:none;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:800;flex-shrink:0;font-family:'Nunito',sans-serif;margin-left:10px">Cancel</button>`:''}
+    </div>
+  </div>`).join('')}`;
+}
+
+function cancelBooking(i){
+  if(confirm('Cancel this appointment?')){
+    state.bookings[i].status='cancelled';
+    renderBookings();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════════════════════
+const PAGES=['dashboard','reminders','hospitals','ai','bookings'];
+
+function switchTab(tab){
+  state.tab=tab;
+  PAGES.forEach(p=>{
+    const el=document.getElementById('page-'+p);
+    if(el) el.style.display = p===tab ? (p==='ai'?'flex':'block') : 'none';
+  });
+  document.querySelectorAll('.nav-btn').forEach((btn,i)=>{
+    btn.classList.toggle('active', PAGES[i]===tab);
+  });
+  const renderers={dashboard:renderDashboard,reminders:renderReminders,hospitals:renderHospitals,ai:renderAIChat,bookings:renderBookings};
+  if(renderers[tab]) renderers[tab]();
+}
+
+// Init
+renderDashboard();
+renderReminders();
+renderHospitals();
+renderAIChat();
+renderBookings();
+document.querySelectorAll('.page').forEach(p=>{ if(p.id!=='page-dashboard') p.style.display='none'; });
+document.getElementById('page-ai').style.display='none';
+</script>
+</body>
+</html>
