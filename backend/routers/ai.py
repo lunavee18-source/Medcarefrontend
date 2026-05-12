@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from groq import Groq
-from config import GROQ_API_KEY, MODEL
+from backend.config import GROQ_API_KEY, MODEL
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 client = Groq(api_key=GROQ_API_KEY)

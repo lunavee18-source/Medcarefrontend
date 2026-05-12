@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#1D9E75">
-<meta name="mobile-web-app-capable" content="yes">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>MedCare – Tumkur</title>
@@ -162,6 +159,7 @@ button{cursor:pointer;font-family:'Nunito',sans-serif}
   </nav>
 </div>
 
+const API = 'https://your-railway-app.up.railway.app';  
 <script>
 // ════════════════════════════════════════════════════════════════
 // DATA
@@ -265,13 +263,25 @@ function estimateCalories(text) {
 }
 
 // ════════════════════════════════════════════════════════════════
+// CALORIE STORAGE — resets every new day
+// ════════════════════════════════════════════════════════════════
+function todayKey(){ return 'kcal_'+new Date().toISOString().split('T')[0]; }
+function loadCalories(){
+  try {
+    const saved = localStorage.getItem(todayKey());
+    return saved ? JSON.parse(saved) : [];
+  } catch(e){ return []; }
+}
+function saveCalories(list){
+  try { localStorage.setItem(todayKey(), JSON.stringify(list)); } catch(e){}
+}
+
+// ════════════════════════════════════════════════════════════════
 // STATE
 // ════════════════════════════════════════════════════════════════
 let state = {
   tab: 'dashboard',
-  calories: [
-    {label:'Chocolate milkshake 2 veg sandwich',kcal:850}
-  ],
+  calories: loadCalories(),
   steps: 0,
   water: 2.1,
   reminders: {
@@ -334,10 +344,15 @@ function renderDashboard(){
   </div>
 
   <div class="card">
-    <div class="section-title">🔥 CALORIE TRACKER</div>
+    <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>🔥 CALORIE TRACKER</span>
+      ${state.calories.length>0?`<button onclick="clearCalories()" style="background:none;border:none;color:#c00;font-size:10px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">Clear</button>`:''}
+    </div>
     <div style="font-size:13px;color:#555;margin-bottom:8px">Total today: <b style="color:#1D9E75">${kcal} kcal</b></div>
     <div id="kcal-list">
-      ${state.calories.map(c=>`<div class="kcal-row"><span style="flex:1;margin-right:8px">${c.label}</span><span class="kcal-val">${c.kcal} kcal</span></div>`).join('')}
+      ${state.calories.length===0
+        ? `<div style="text-align:center;padding:14px 0;font-size:12px;color:#b0c8be">No food logged yet today</div>`
+        : state.calories.map(c=>`<div class="kcal-row"><span style="flex:1;margin-right:8px">${c.label}</span><span class="kcal-val">${c.kcal} kcal</span></div>`).join('')}
     </div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <input id="food-input" placeholder="e.g. 2 chapati and dal" style="flex:1" onkeydown="if(event.key==='Enter')analyzeFood()"/>
@@ -375,6 +390,7 @@ function analyzeFood(){
   setTimeout(()=>{
     const result = estimateCalories(val);
     state.calories.push(result);
+    saveCalories(state.calories);
     input.value='';
     btn.textContent='Analyze';
     btn.disabled=false;
@@ -382,9 +398,15 @@ function analyzeFood(){
   },400);
 }
 
-// ════════════════════════════════════════════════════════════════
-// REMINDERS
-// ════════════════════════════════════════════════════════════════
+function clearCalories(){
+  if(confirm('Clear all food entries for today?')){
+    state.calories=[];
+    saveCalories([]);
+    renderDashboard();
+  }
+}
+
+
 function renderReminders(){
   document.getElementById('page-reminders').innerHTML=`
   <h2 style="font-size:20px;font-weight:800;color:#222;margin-bottom:16px">Reminders</h2>
@@ -652,16 +674,28 @@ function chatSend(preset){
   state.chatLoading=true;
   renderAIChat();
   scrollChat();
-  // Use local smart engine — no API key needed
-  setTimeout(()=>{
-    const reply = getLocalAIReply(msg);
-    state.chatMsgs.push({role:'ai',text:reply});
+
+  fetch('https://YOUR-RAILWAY-URL.up.railway.app/ai/chat', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({message: msg})
+  })
+  .then(r => r.json())
+  .then(data => {
+    state.chatMsgs.push({role:'ai', text: data.reply});
     state.chatLoading=false;
     renderAIChat();
     scrollChat();
-  }, 800);
+  })
+  .catch(()=>{
+    // fallback to local engine if backend is down
+    const reply = getLocalAIReply(msg);
+    state.chatMsgs.push({role:'ai', text: reply});
+    state.chatLoading=false;
+    renderAIChat();
+    scrollChat();
+  });
 }
-
 // ════════════════════════════════════════════════════════════════
 // BOOKINGS
 // ════════════════════════════════════════════════════════════════

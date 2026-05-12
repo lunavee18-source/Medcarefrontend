@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import date
-from database import get_db
-from models import HealthLog
+from backend.database import get_db
+from backend.models import HealthLog
 
 router = APIRouter(prefix="/health", tags=["Health"])
 

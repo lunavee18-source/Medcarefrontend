@@ -2,13 +2,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from database import engine, Base
-from routers.ai import router as ai_router
-from routers.bookings import router as bookings_router
-from routers.health import router as health_router
-from routers.reminders import router as reminders_router
-from routers.nutrition import router as nutrition_router
-from routers.auth import router as auth_router
+from backend.database import engine, Base
+from backend.routers.ai import router as ai_router
+from backend.routers.bookings import router as bookings_router
+from backend.routers.health import router as health_router
+from backend.routers.reminders import router as reminders_router
+from backend.routers.nutrition import router as nutrition_router
+from backend.routers.auth import router as auth_router
 
 # Create all tables
 Base.metadata.create_all(bind=engine)

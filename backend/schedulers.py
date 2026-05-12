@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from database import SessionLocal
-from models import Reminder
-from sms_service import send_sms
+from backend.database import SessionLocal
+from backend.models import Reminder
+from backend.sms_service import send_sms
 
 scheduler = BackgroundScheduler()
 
