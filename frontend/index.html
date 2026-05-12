@@ -674,8 +674,9 @@ function chatSend(preset){
   state.chatLoading=true;
   renderAIChat();
   scrollChat();
+  
 
-  fetch('https://YOUR-RAILWAY-URL.up.railway.app/ai/chat', {
+  fetch('https://YOUR-APP-NAME.onrender.com/ai/chat', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({message: msg})
