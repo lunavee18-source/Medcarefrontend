@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.staticfiles import StaticFiles
 
 from backend.database import engine, Base
 from backend.routers.ai import router as ai_router
@@ -32,7 +32,7 @@ app.include_router(nutrition_router)
 app.include_router(auth_router)
 
 # Serve frontend
-
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 @app.get("/api/status")
 def status():

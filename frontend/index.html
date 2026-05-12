@@ -674,29 +674,16 @@ function chatSend(preset){
   state.chatLoading=true;
   renderAIChat();
   scrollChat();
-  
-
-  fetch('https://YOUR-APP-NAME.onrender.com/ai/chat', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({message: msg})
-  })
-  .then(r => r.json())
-  .then(data => {
-    state.chatMsgs.push({role:'ai', text: data.reply});
-    state.chatLoading=false;
-    renderAIChat();
-    scrollChat();
-  })
-  .catch(()=>{
-    // fallback to local engine if backend is down
+  // Use local smart engine — no API key needed
+  setTimeout(()=>{
     const reply = getLocalAIReply(msg);
-    state.chatMsgs.push({role:'ai', text: reply});
+    state.chatMsgs.push({role:'ai',text:reply});
     state.chatLoading=false;
     renderAIChat();
     scrollChat();
-  });
+  }, 800);
 }
+
 // ════════════════════════════════════════════════════════════════
 // BOOKINGS
 // ════════════════════════════════════════════════════════════════
