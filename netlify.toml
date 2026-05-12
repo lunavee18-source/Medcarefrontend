@@ -1,0 +1,4 @@
+[build]
+  base = "MEDCAREfinal"
+  publish = "frontend"
+  command = "echo 'static site'"
