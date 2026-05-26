@@ -1,7 +1,10 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from groq import Groq
-from config import GROQ_API_KEY, MODEL
+import os
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+MODEL = os.getenv("MODEL", "llama3-70b-8192")
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
