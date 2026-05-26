@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import auth, hospitals, bookings, ai_chat, doctors
+from routers import auth, hospitals, bookings, ai, doctors
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,7 +19,7 @@ app.include_router(auth.router)
 app.include_router(hospitals.router)
 app.include_router(doctors.router)
 app.include_router(bookings.router)
-app.include_router(ai_chat.router)
+app.include_router(ai.router)
 
 @app.get("/")
 def root():
