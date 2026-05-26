@@ -1,19 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from database import engine, Base
+from routers import auth, hospitals, bookings, ai_chat, doctors
 
-from backend.database import engine, Base
-from backend.routers.ai import router as ai_router
-from backend.routers.bookings import router as bookings_router
-from backend.routers.health import router as health_router
-from backend.routers.reminders import router as reminders_router
-from backend.routers.nutrition import router as nutrition_router
-from backend.routers.auth import router as auth_router
-
-# Create all tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="MedCare API", version="1.0.0")
+app = FastAPI(title="MedCare API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,17 +15,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API routes
-app.include_router(ai_router)
-app.include_router(bookings_router)
-app.include_router(health_router)
-app.include_router(reminders_router)
-app.include_router(nutrition_router)
-app.include_router(auth_router)
+app.include_router(auth.router)
+app.include_router(hospitals.router)
+app.include_router(doctors.router)
+app.include_router(bookings.router)
+app.include_router(ai_chat.router)
 
-# Serve frontend
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
-@app.get("/api/status")
-def status():
-    return {"status": "MedCare Running"}
+@app.get("/")
+def root():
+    return {"status": "MedCare API v2 Running"}

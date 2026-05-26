@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>MedCare – Patient Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--teal:#1D9E75;--teal-dark:#0F6E56;--teal-light:#E8F8F2;--teal-mid:#2EBD8C;--red:#E53935;--orange:#F57C00;--bg:#F0FAF6;--white:#fff;--gray:#F7F9FB;--border:#D4EDE3;--text:#1A2332;--sub:#6B8C7A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#app{max-width:430px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;overflow-x:hidden}
+
+/* AUTH */
+.auth-screen{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px}
+.auth-logo{text-align:center;margin-bottom:32px}
+.auth-logo .icon{width:72px;height:72px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px;box-shadow:0 8px 24px rgba(29,158,117,.3)}
+.auth-logo h1{font-size:26px;font-weight:800;color:var(--text)}
+.auth-logo p{font-size:13px;color:var(--sub);margin-top:4px}
+.auth-card{background:var(--white);border-radius:20px;padding:28px 24px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.auth-tabs{display:flex;background:var(--gray);border-radius:12px;padding:4px;margin-bottom:24px}
+.auth-tab{flex:1;padding:8px;border:none;background:none;border-radius:10px;font-size:13px;font-weight:600;color:var(--sub);cursor:pointer;transition:all .2s}
+.auth-tab.active{background:var(--white);color:var(--teal);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--sub);margin-bottom:6px;letter-spacing:.3px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:'Inter',sans-serif;color:var(--text);background:var(--white);transition:border .2s;outline:none}
+.field input:focus,.field select:focus{border-color:var(--teal)}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;box-shadow:0 4px 16px rgba(29,158,117,.3)}
+.btn-primary:hover{opacity:.93}
+.btn-secondary{background:var(--teal-light);color:var(--teal-dark)}
+.err{color:var(--red);font-size:12px;margin-top:8px;text-align:center}
+.success{color:var(--teal);font-size:12px;margin-top:8px;text-align:center}
+
+/* MAIN APP */
+.main-app{display:none;flex-direction:column;min-height:100vh}
+.topbar{background:linear-gradient(135deg,var(--teal),var(--teal-dark));padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-icon{width:34px;height:34px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.topbar-title{font-size:16px;font-weight:800;color:#fff}
+.topbar-sub{font-size:10px;color:rgba(255,255,255,.75)}
+.topbar-right button{background:rgba(255,255,255,.2);border:none;color:#fff;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+
+.content{flex:1;overflow-y:auto;padding-bottom:80px}
+.content::-webkit-scrollbar{display:none}
+
+.page{display:none;animation:fadeIn .25s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--white);border-top:1px solid var(--border);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:8px 0 10px;border:none;background:none;cursor:pointer;gap:3px;position:relative}
+.nav-item .nav-ico{font-size:20px;line-height:1}
+.nav-item .nav-lbl{font-size:9px;font-weight:600;color:#9EB8AC;transition:color .2s}
+.nav-item.active .nav-lbl{color:var(--teal)}
+.nav-badge{position:absolute;top:4px;right:calc(50% - 18px);background:var(--red);color:#fff;font-size:9px;font-weight:800;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.nav-indicator{width:20px;height:3px;background:var(--teal);border-radius:2px;position:absolute;bottom:0}
+
+/* CARDS */
+.card{background:var(--white);border-radius:16px;border:1px solid var(--border);padding:18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.section-pad{padding:16px 16px 0}
+.section-title{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:1px;margin-bottom:12px}
+
+/* HERO BANNER */
+.hero{background:linear-gradient(135deg,var(--teal),var(--teal-dark));border-radius:18px;padding:20px 18px;margin:16px 16px 0;color:#fff;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;background:rgba(255,255,255,.08);border-radius:50%}
+.hero::before{content:'';position:absolute;right:40px;bottom:-30px;width:80px;height:80px;background:rgba(255,255,255,.05);border-radius:50%}
+.hero h2{font-size:20px;font-weight:800;margin-bottom:4px}
+.hero p{font-size:12px;opacity:.85}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px}
+.stat-card{background:var(--white);border-radius:14px;border:1px solid var(--border);padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.stat-card .s-label{font-size:10px;font-weight:700;color:var(--sub);margin-bottom:4px}
+.stat-card .s-val{font-size:24px;font-weight:800;color:var(--teal)}
+.stat-card .s-sub{font-size:10px;color:#9EB8AC;margin-top:2px}
+
+/* HOSPITAL CARDS */
+.hospital-card{background:var(--white);border-radius:16px;border:1px solid var(--border);margin-bottom:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.hospital-card .hc-head{padding:16px}
+.hospital-card .hc-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+.hospital-card .hc-addr{font-size:11px;color:var(--sub);margin-bottom:6px}
+.hospital-card .hc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tag{background:var(--teal-light);color:var(--teal-dark);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
+.tag-red{background:#FFE8E8;color:var(--red)}
+.expand-btn{background:none;border:none;color:var(--teal);font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;padding:0}
+.doctors-section{border-top:1px solid var(--border);background:#FAFFFE}
+.doctor-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #F0F7F4}
+.doctor-row:last-child{border:none}
+.doc-avatar{width:40px;height:40px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:var(--teal-dark);flex-shrink:0}
+.doc-info{flex:1}
+.doc-name{font-size:13px;font-weight:700;color:var(--text)}
+.doc-spec{font-size:11px;color:var(--sub)}
+.doc-hours{font-size:10px;color:#9EB8AC}
+.book-btn{background:var(--teal);color:#fff;border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0}
+
+/* BOOKING MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-sheet{background:var(--white);width:100%;max-width:430px;border-radius:24px 24px 0 0;padding:24px 20px 32px;animation:slideUp .28s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:#DDD;border-radius:2px;margin:0 auto 20px}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--sub);margin-bottom:20px}
+.slot-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.slot-btn{padding:8px 14px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;font-weight:600;background:var(--white);color:var(--text);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.slot-btn.active{background:var(--teal);border-color:var(--teal);color:#fff}
+.close-btn{position:absolute;top:20px;right:20px;background:#F0F0F0;border:none;border-radius:50%;width:30px;height:30px;font-size:16px;cursor:pointer;color:#555}
+
+/* BOOKING CARDS */
+.booking-card{background:var(--white);border-radius:16px;border:1px solid var(--border);padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.status-pending{background:#FFF3E0;color:var(--orange)}
+.status-approved{background:#E8F8F2;color:var(--teal-dark)}
+.status-rejected{background:#FFE8E8;color:var(--red)}
+.status-cancelled{background:#F5F5F5;color:#999}
+
+/* AI CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 112px)}
+.chat-header{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--white)}
+.chat-header h2{font-size:18px;font-weight:800}
+.chat-header p{font-size:11px;color:var(--sub)}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-messages::-webkit-scrollbar{display:none}
+.msg{max-width:85%;animation:msgIn .2s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.ai{align-self:flex-start}
+.msg.user{align-self:flex-end}
+.msg-sender{font-size:10px;font-weight:700;color:var(--teal);margin-bottom:4px}
+.msg-bubble{padding:12px 16px;border-radius:18px;font-size:13px;line-height:1.7;white-space:pre-wrap}
+.msg.ai .msg-bubble{background:var(--white);border:1px solid var(--border);border-radius:4px 18px 18px 18px;color:var(--text)}
+.msg.user .msg-bubble{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;border-radius:18px 18px 4px 18px}
+.typing{display:flex;gap:4px;padding:12px 16px;background:var(--white);border:1px solid var(--border);border-radius:4px 18px 18px 18px;width:fit-content}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:typingBounce 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.chat-input-area{padding:10px 16px 12px;border-top:1px solid var(--border);background:var(--white)}
+.quick-chips{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin-bottom:10px;padding-bottom:2px}
+.quick-chips::-webkit-scrollbar{display:none}
+.chip{background:var(--teal-light);color:var(--teal-dark);border:none;border-radius:20px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif}
+.input-row{display:flex;gap:8px}
+.chat-input{flex:1;border:1.5px solid var(--border);border-radius:24px;padding:11px 16px;font-size:13px;font-family:'Inter',sans-serif;outline:none;color:var(--text)}
+.chat-input:focus{border-color:var(--teal)}
+.send-btn{width:44px;height:44px;background:linear-gradient(135deg,var(--teal),var(--teal-dark));border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(29,158,117,.3)}
+
+/* PROFILE */
+.profile-header{background:linear-gradient(135deg,var(--teal),var(--teal-dark));padding:32px 20px 24px;text-align:center;color:#fff}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin:0 auto 12px;border:3px solid rgba(255,255,255,.4)}
+.profile-name{font-size:20px;font-weight:800}
+.profile-phone{font-size:13px;opacity:.8;margin-top:2px}
+.menu-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--white);border-bottom:1px solid var(--border);cursor:pointer}
+.menu-item .mi-icon{width:38px;height:38px;border-radius:10px;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.menu-item .mi-label{font-size:14px;font-weight:600;flex:1}
+.menu-item .mi-arrow{color:#CCC;font-size:16px}
+
+.loading{text-align:center;padding:40px;color:var(--sub);font-size:13px}
+.empty-state{text-align:center;padding:60px 20px}
+.empty-state .ei{font-size:48px;margin-bottom:12px}
+.empty-state h3{font-size:16px;font-weight:700;color:#C0D8CC;margin-bottom:4px}
+.empty-state p{font-size:12px;color:#C0D8CC}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ── AUTH SCREEN ─────────────────────────────────────── -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-logo">
+    <div class="icon">🏥</div>
+    <h1>MedCare</h1>
+    <p>Your health companion in Tumkur</p>
+  </div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <div id="login-form">
+      <div class="field"><label>PHONE NUMBER</label><input id="login-phone" type="tel" placeholder="Enter your phone number"/></div>
+      <div class="field"><label>PASSWORD</label><input id="login-pass" type="password" placeholder="Enter your password"/></div>
+      <div id="login-err" class="err" style="display:none"></div>
+      <button class="btn btn-primary" onclick="doLogin()" style="margin-top:8px">Sign In</button>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="field"><label>FULL NAME</label><input id="reg-name" placeholder="Your full name"/></div>
+      <div class="field"><label>PHONE NUMBER</label><input id="reg-phone" type="tel" placeholder="Your phone number"/></div>
+      <div class="field"><label>EMAIL (Optional)</label><input id="reg-email" type="email" placeholder="your@email.com"/></div>
+      <div class="field"><label>PASSWORD</label><input id="reg-pass" type="password" placeholder="Create a password"/></div>
+      <div id="reg-err" class="err" style="display:none"></div>
+      <button class="btn btn-primary" onclick="doRegister()" style="margin-top:8px">Create Account</button>
+    </div>
+    <p style="text-align:center;font-size:12px;color:var(--sub);margin-top:16px">
+      Are you a hospital? <a href="hospital.html" style="color:var(--teal);font-weight:700">Hospital Portal →</a>
+    </p>
+  </div>
+</div>
+
+<!-- ── MAIN APP ─────────────────────────────────────────── -->
+<div id="main-app" class="main-app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-icon">🏥</div>
+      <div><div class="topbar-title">MedCare</div><div class="topbar-sub" id="topbar-greeting">Good morning!</div></div>
+    </div>
+    <div class="topbar-right"><button onclick="doLogout()">Logout</button></div>
+  </div>
+
+  <div class="content">
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <div class="hero">
+        <h2>Hello, <span id="user-name-hero">there</span> 👋</h2>
+        <p>How are you feeling today? Find the right doctor in Tumkur.</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card"><div class="s-label">MY BOOKINGS</div><div class="s-val" id="stat-bookings">0</div><div class="s-sub">appointments</div></div>
+        <div class="stat-card"><div class="s-label">PENDING</div><div class="s-val" id="stat-pending" style="color:var(--orange)">0</div><div class="s-sub">awaiting approval</div></div>
+        <div class="stat-card"><div class="s-label">APPROVED</div><div class="s-val" id="stat-approved">0</div><div class="s-sub">confirmed</div></div>
+        <div class="stat-card"><div class="s-label">HOSPITALS</div><div class="s-val" id="stat-hospitals">0</div><div class="s-sub">in Tumkur</div></div>
+      </div>
+      <div class="section-pad">
+        <div class="card" style="background:linear-gradient(135deg,#E8F8F2,#D0F0E4);border:none;cursor:pointer" onclick="switchPage('ai')">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:48px;height:48px;background:var(--teal);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">🤖</div>
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--teal-dark)">Ask AI Doctor</div>
+              <div style="font-size:12px;color:var(--teal);margin-top:2px">Describe symptoms → Get remedies + doctor suggestion</div>
+            </div>
+            <div style="color:var(--teal);font-size:20px;margin-left:auto">›</div>
+          </div>
+        </div>
+        <div class="section-title">QUICK ACCESS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+          <div class="card" style="cursor:pointer;text-align:center;padding:16px" onclick="switchPage('hospitals')">
+            <div style="font-size:28px;margin-bottom:6px">🏥</div>
+            <div style="font-size:13px;font-weight:700">Find Hospital</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:2px">Browse & Book</div>
+          </div>
+          <div class="card" style="cursor:pointer;text-align:center;padding:16px" onclick="switchPage('bookings')">
+            <div style="font-size:28px;margin-bottom:6px">📋</div>
+            <div style="font-size:13px;font-weight:700">My Bookings</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:2px">Track status</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOSPITALS -->
+    <div id="page-hospitals" class="page">
+      <div class="section-pad" style="padding-top:16px">
+        <input id="hospital-search" placeholder="🔍  Search hospitals or specialization..." style="width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:'Inter',sans-serif;outline:none;margin-bottom:14px;background:var(--white)" oninput="filterHospitals()"/>
+        <div id="hospitals-list"><div class="loading">Loading hospitals...</div></div>
+      </div>
+    </div>
+
+    <!-- AI CHAT -->
+    <div id="page-ai" class="page" style="padding:0">
+      <div class="chat-wrap">
+        <div class="chat-header">
+          <h2>🤖 AI Doctor Assistant</h2>
+          <p>Describe your symptoms for remedies & doctor recommendations</p>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg ai">
+            <div class="msg-sender">MedCare AI</div>
+            <div class="msg-bubble">Hello! 👋 I'm your AI health assistant.
+
+Tell me your symptoms and I'll:
+• Give you home remedies to try
+• Warn you about serious signs
+• Recommend the right doctor specialist
+
+What's bothering you today?</div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <div class="quick-chips">
+            <button class="chip" onclick="sendMsg('I have fever and cough')">🤒 Fever & cough</button>
+            <button class="chip" onclick="sendMsg('I have severe back pain')">🦴 Back pain</button>
+            <button class="chip" onclick="sendMsg('I have chest pain and breathing difficulty')">❤️ Chest pain</button>
+            <button class="chip" onclick="sendMsg('I have headache and dizziness')">🧠 Headache</button>
+            <button class="chip" onclick="sendMsg('I have stomach pain and vomiting')">🤢 Stomach pain</button>
+            <button class="chip" onclick="sendMsg('I have knee pain and swelling')">🦵 Knee pain</button>
+          </div>
+          <div class="input-row">
+            <input class="chat-input" id="chat-input" placeholder="Type your symptoms..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+            <button class="send-btn" onclick="sendMsg()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div id="page-bookings" class="page">
+      <div class="section-pad" style="padding-top:16px">
+        <div id="bookings-list"><div class="loading">Loading bookings...</div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="page-profile" class="page">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profile-avatar">U</div>
+        <div class="profile-name" id="profile-name">User</div>
+        <div class="profile-phone" id="profile-phone">+91 XXXXXXXXXX</div>
+      </div>
+      <div style="background:var(--white);margin-top:16px;border-radius:16px 16px 0 0">
+        <div class="menu-item" onclick="switchPage('bookings')">
+          <div class="mi-icon">📋</div><div class="mi-label">My Appointments</div><div class="mi-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="switchPage('ai')">
+          <div class="mi-icon">🤖</div><div class="mi-label">AI Health Assistant</div><div class="mi-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="switchPage('hospitals')">
+          <div class="mi-icon">🏥</div><div class="mi-label">Find Hospitals</div><div class="mi-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="doLogout()" style="border-top:8px solid var(--bg)">
+          <div class="mi-icon" style="background:#FFE8E8">🚪</div><div class="mi-label" style="color:var(--red)">Logout</div><div class="mi-arrow">›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchPage('home')" id="nav-home">
+      <span class="nav-ico">🏠</span><span class="nav-lbl">Home</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('hospitals')" id="nav-hospitals">
+      <span class="nav-ico">🏥</span><span class="nav-lbl">Hospitals</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('ai')" id="nav-ai">
+      <span class="nav-ico">🤖</span><span class="nav-lbl">AI Chat</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('bookings')" id="nav-bookings">
+      <span class="nav-ico">📋</span><span class="nav-lbl">Bookings</span>
+      <span class="nav-badge" id="pending-badge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" onclick="switchPage('profile')" id="nav-profile">
+      <span class="nav-ico">👤</span><span class="nav-lbl">Profile</span>
+    </button>
+  </nav>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-overlay" id="booking-modal">
+  <div class="modal-sheet" style="position:relative">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-doctor-name">Book Appointment</div>
+    <div class="modal-sub" id="modal-hospital-name">Hospital Name</div>
+    <div class="field"><label>YOUR NAME</label><input id="bk-name" placeholder="Full name"/></div>
+    <div class="field"><label>PHONE</label><input id="bk-phone" type="tel" placeholder="Phone number"/></div>
+    <div class="field"><label>SYMPTOMS (Optional)</label><input id="bk-symptoms" placeholder="What are your symptoms?"/></div>
+    <div class="field"><label>DATE</label><input id="bk-date" type="date"/></div>
+    <div class="field"><label>SELECT TIME SLOT</label></div>
+    <div class="slot-grid" id="slot-grid"></div>
+    <div id="bk-err" class="err" style="display:none"></div>
+    <button class="btn btn-primary" onclick="confirmBooking()">Confirm Appointment</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let user = null;
+let hospitals = [];
+let chatHistory = [];
+let selectedSlot = null;
+let bookingTarget = null;
+
+const SLOTS = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
+
+// ── INIT ──
+window.onload = () => {
+  const saved = localStorage.getItem('medcare_user');
+  if (saved) {
+    user = JSON.parse(saved);
+    showApp();
+  }
+  document.getElementById('bk-date').min = new Date().toISOString().split('T')[0];
+};
+
+// ── AUTH ──
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1)));
+  document.getElementById('login-form').style.display = tab==='login'?'block':'none';
+  document.getElementById('register-form').style.display = tab==='register'?'block':'none';
+}
+
+async function doLogin() {
+  const phone = document.getElementById('login-phone').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-err');
+  if (!phone||!pass) { showErr(err,'Please fill all fields'); return; }
+  try {
+    const res = await fetch(`${API}/auth/user/login`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({phone,password:pass}) });
+    const data = await res.json();
+    if (!res.ok) { showErr(err, data.detail||'Login failed'); return; }
+    user = data;
+    localStorage.setItem('medcare_user', JSON.stringify(user));
+    showApp();
+  } catch(e) { showErr(err,'Cannot connect to server. Make sure backend is running.'); }
+}
+
+async function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const err = document.getElementById('reg-err');
+  if (!name||!phone||!pass) { showErr(err,'Please fill all required fields'); return; }
+  try {
+    const res = await fetch(`${API}/auth/user/register`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name,phone,email:email||null,password:pass}) });
+    const data = await res.json();
+    if (!res.ok) { showErr(err, data.detail||'Registration failed'); return; }
+    user = data;
+    localStorage.setItem('medcare_user', JSON.stringify(user));
+    showApp();
+  } catch(e) { showErr(err,'Cannot connect to server.'); }
+}
+
+function doLogout() {
+  user = null;
+  localStorage.removeItem('medcare_user');
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; setTimeout(()=>el.style.display='none',3500); }
+
+// ── SHOW APP ──
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'flex';
+  const hour = new Date().getHours();
+  const greet = hour<12?'Good morning':'hour<18?'Good afternoon':'Good evening';
+  document.getElementById('topbar-greeting').textContent = `${greet}, ${user.name}!`;
+  document.getElementById('user-name-hero').textContent = user.name.split(' ')[0];
+  document.getElementById('profile-name').textContent = user.name;
+  document.getElementById('profile-phone').textContent = user.phone;
+  document.getElementById('profile-avatar').textContent = user.name[0].toUpperCase();
+  loadHospitals();
+  loadBookings();
+}
+
+// ── NAVIGATION ──
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  if (page==='bookings') loadBookings();
+  if (page==='hospitals') loadHospitals();
+}
+
+// ── HOSPITALS ──
+async function loadHospitals() {
+  try {
+    const res = await fetch(`${API}/hospitals/`);
+    hospitals = await res.json();
+    document.getElementById('stat-hospitals').textContent = hospitals.length;
+    renderHospitals(hospitals);
+  } catch(e) { document.getElementById('hospitals-list').innerHTML = '<div class="loading">Could not load hospitals. Check backend.</div>'; }
+}
+
+function filterHospitals() {
+  const q = document.getElementById('hospital-search').value.toLowerCase();
+  const filtered = hospitals.filter(h => h.name.toLowerCase().includes(q) || h.specializations.some(s => s.toLowerCase().includes(q)));
+  renderHospitals(filtered);
+}
+
+function renderHospitals(list) {
+  const el = document.getElementById('hospitals-list');
+  if (!list.length) { el.innerHTML = '<div class="empty-state"><div class="ei">🔍</div><h3>No hospitals found</h3></div>'; return; }
+  el.innerHTML = list.map(h => `
+  <div class="hospital-card">
+    <div class="hc-head">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="hc-name">${h.name}</div>
+        ${h.emergency ? '<span class="tag tag-red">🚨 24/7 Emergency</span>' : ''}
+      </div>
+      <div class="hc-addr">📍 ${h.address} &nbsp;·&nbsp; 📞 ${h.phone}</div>
+      <div class="hc-tags">${h.specializations.map(s=>`<span class="tag">${s.trim()}</span>`).join('')}</div>
+      ${h.description ? `<div style="font-size:12px;color:var(--sub);margin-bottom:8px">${h.description}</div>` : ''}
+      <button class="expand-btn" onclick="toggleDoctors(${h.id}, this)">▼ View ${h.doctors.length} doctor${h.doctors.length!==1?'s':''}</button>
+    </div>
+    <div class="doctors-section" id="docs-${h.id}" style="display:none">
+      ${h.doctors.length ? h.doctors.map(d => `
+      <div class="doctor-row">
+        <div class="doc-avatar">${d.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+        <div class="doc-info">
+          <div class="doc-name">${d.name}</div>
+          <div class="doc-spec">${d.specialty} · ${d.experience}</div>
+          <div class="doc-hours">⏰ ${d.consultation_hours}</div>
+        </div>
+        <button class="book-btn" onclick="openBooking(${JSON.stringify(h).replace(/"/g,'&quot;')}, ${JSON.stringify(d).replace(/"/g,'&quot;')})">Book</button>
+      </div>`).join('') : '<div style="padding:16px;font-size:13px;color:var(--sub)">No doctors listed yet.</div>'}
+    </div>
+  </div>`).join('');
+}
+
+function toggleDoctors(id, btn) {
+  const el = document.getElementById(`docs-${id}`);
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : 'block';
+  btn.textContent = open ? `▼ View doctors` : '▲ Collapse';
+}
+
+// ── BOOKING MODAL ──
+function openBooking(h, d) {
+  bookingTarget = {h, d};
+  document.getElementById('modal-doctor-name').textContent = `Book with ${d.name}`;
+  document.getElementById('modal-hospital-name').textContent = `${d.specialty} · ${h.name}`;
+  document.getElementById('bk-name').value = user.name || '';
+  document.getElementById('bk-phone').value = user.phone || '';
+  selectedSlot = SLOTS[1];
+  document.getElementById('slot-grid').innerHTML = SLOTS.map(s => `<button class="slot-btn ${s===selectedSlot?'active':''}" onclick="selectSlot(this,'${s}')">${s}</button>`).join('');
+  document.getElementById('booking-modal').classList.add('open');
+}
+
+function selectSlot(btn, slot) {
+  selectedSlot = slot;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function closeModal() { document.getElementById('booking-modal').classList.remove('open'); }
+
+async function confirmBooking() {
+  const name = document.getElementById('bk-name').value.trim();
+  const phone = document.getElementById('bk-phone').value.trim();
+  const date = document.getElementById('bk-date').value;
+  const symptoms = document.getElementById('bk-symptoms').value.trim();
+  const err = document.getElementById('bk-err');
+  if (!name||!phone||!date) { showErr(err,'Please fill all required fields'); return; }
+  if (!selectedSlot) { showErr(err,'Please select a time slot'); return; }
+  try {
+    const res = await fetch(`${API}/bookings/`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user_id: user.id, hospital_id: bookingTarget.h.id, doctor_id: bookingTarget.d.id,
+        patient_name: name, phone, symptoms, date, time_slot: selectedSlot })
+    });
+    const data = await res.json();
+    if (!res.ok) { showErr(err, data.detail||'Booking failed'); return; }
+    closeModal();
+    switchPage('bookings');
+    loadBookings();
+  } catch(e) { showErr(err,'Cannot connect to server.'); }
+}
+
+// ── BOOKINGS ──
+async function loadBookings() {
+  if (!user) return;
+  const el = document.getElementById('bookings-list');
+  try {
+    const res = await fetch(`${API}/bookings/user/${user.id}`);
+    const bookings = await res.json();
+    document.getElementById('stat-bookings').textContent = bookings.length;
+    const pending = bookings.filter(b=>b.status==='pending').length;
+    const approved = bookings.filter(b=>b.status==='approved').length;
+    document.getElementById('stat-pending').textContent = pending;
+    document.getElementById('stat-approved').textContent = approved;
+    const badge = document.getElementById('pending-badge');
+    badge.style.display = pending > 0 ? 'flex' : 'none';
+    badge.textContent = pending;
+    if (!bookings.length) { el.innerHTML = '<div class="empty-state"><div class="ei">📋</div><h3>No bookings yet</h3><p>Go to Hospitals tab to book a doctor</p></div>'; return; }
+    el.innerHTML = bookings.map(b => `
+    <div class="booking-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:700">${b.doctor?.name||'Doctor'}</div>
+          <div style="font-size:12px;color:var(--sub)">${b.doctor?.specialty||''}</div>
+        </div>
+        <span class="status-badge status-${b.status}">${statusIcon(b.status)} ${b.status.charAt(0).toUpperCase()+b.status.slice(1)}</span>
+      </div>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:3px">🏥 ${b.hospital?.name||''}</div>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:3px">📅 ${b.date} · ${b.time_slot}</div>
+      ${b.symptoms ? `<div style="font-size:12px;color:var(--sub);margin-bottom:6px">🩺 ${b.symptoms}</div>` : ''}
+      ${b.rejection_reason ? `<div style="font-size:12px;color:var(--red);margin-top:6px;padding:8px;background:#FFE8E8;border-radius:8px">❌ Rejected: ${b.rejection_reason}</div>` : ''}
+      ${b.status==='pending'||b.status==='approved' ? `<button onclick="cancelBooking(${b.id})" style="margin-top:10px;background:#FFE8E8;color:var(--red);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">Cancel</button>` : ''}
+    </div>`).join('');
+  } catch(e) { el.innerHTML = '<div class="loading">Could not load bookings.</div>'; }
+}
+
+function statusIcon(s) { return {pending:'⏳',approved:'✅',rejected:'❌',cancelled:'🚫'}[s]||''; }
+
+async function cancelBooking(id) {
+  if (!confirm('Cancel this appointment?')) return;
+  await fetch(`${API}/bookings/${id}/cancel`, {method:'PUT'});
+  loadBookings();
+}
+
+// ── AI CHAT ──
+async function sendMsg(preset) {
+  const input = document.getElementById('chat-input');
+  const msg = preset || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  appendMsg('user', msg);
+  chatHistory.push({role:'user', content:msg});
+  const typing = appendTyping();
+  try {
+    const res = await fetch(`${API}/ai/chat`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({message: msg, history: chatHistory.slice(-6)})
+    });
+    const data = await res.json();
+    typing.remove();
+    const reply = data.reply || 'Sorry, something went wrong.';
+    appendMsg('ai', reply);
+    chatHistory.push({role:'assistant', content:reply});
+  } catch(e) {
+    typing.remove();
+    appendMsg('ai', 'Cannot connect to server. Please check your backend is running.');
+  }
+}
+
+function appendMsg(role, text) {
+  const el = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.innerHTML = `${role==='ai'?'<div class="msg-sender">MedCare AI</div>':''}<div class="msg-bubble">${text.replace(/\n/g,'<br>').replace(/##\s/g,'<b>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/^- /gm,'• ')}</div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function appendTyping() {
+  const el = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = '<div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+  return div;
+}
+</script>
+</body>
+</html>
